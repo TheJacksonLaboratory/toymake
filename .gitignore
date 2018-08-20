@@ -1,0 +1,11 @@
+*
+!config.yaml  
+!confs
+!confs/*
+!data
+!data/**
+!jobscript.sh
+!rules
+!rules/*
+!Snakefile
+!.gitignore

@@ -1,0 +1,35 @@
+{
+    "__default__" :
+    {
+        "name" : "smk_{rule}_{wildcards.case_barcode}",
+        "d" : "/fastscratch/amins/snakemake/toymake",
+        "stdout" : "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.out",
+        "stderr" : "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.err",
+        "queue" : "batch",
+        "j" : "oe",
+        "m" : "n",
+        "M" : "{smk_username}@jax.org",
+        "nodes" : 1,
+        "ppn" : 2,
+        "walltime" : "2:00:00",
+        "mem" : 2048,
+        "S" : "/bin/bash",
+        "r" : "y"
+    },
+    "step1" :
+    {
+        "ppn" : 2,
+        "walltime" : "1:10:00",
+        "mem" : 2048,
+        "stdout": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}_{wildcards.ftype}.out",
+        "stderr": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}_{wildcards.ftype}.out"
+    },
+    "step2" :
+    {
+        "ppn" : 2,
+        "walltime" : "1:10:00",
+        "mem" : 2048,
+        "stdout": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.out",
+        "stderr": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.out"
+    }
+}
