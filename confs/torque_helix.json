@@ -3,8 +3,8 @@
     {
         "name" : "smk_{rule}_{wildcards.case_barcode}",
         "d" : "/fastscratch/amins/snakemake/toymake",
-        "stdout" : "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.out",
-        "stderr" : "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.err",
+        "stdout" : "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out",
+        "stderr" : "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.err",
         "queue" : "batch",
         "j" : "oe",
         "m" : "n",
@@ -21,15 +21,15 @@
         "ppn" : 2,
         "walltime" : "1:10:00",
         "mem" : 2048,
-        "stdout": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}_{wildcards.ftype}.out",
-        "stderr": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}_{wildcards.ftype}.out"
+        "stdout": "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out",
+        "stderr": "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out"
     },
     "step2" :
     {
         "ppn" : 2,
         "walltime" : "1:10:00",
         "mem" : 2048,
-        "stdout": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.out",
-        "stderr": "/fastscratch/amins/snakemake/cgp/logs/helix/{rule}_{wildcards.case_barcode}.out"
+        "stdout": "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out",
+        "stderr": "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out"
     }
 }

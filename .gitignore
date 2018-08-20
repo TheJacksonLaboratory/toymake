@@ -9,3 +9,4 @@
 !rules/*
 !Snakefile
 !.gitignore
+!run_snakemake.sh

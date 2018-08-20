@@ -40,39 +40,37 @@ include: "rules/common.smk"
 
 #### bash config: enabled in jobscript.sh ####
 shell.executable("/bin/bash")
-## enable debugging
-shell.prefix('PS1="$-" ; export PS1 ;')
+## enable debugging; read jobscript.sh for additional bash configs
+shell.prefix('set +x ;')
 
 ## keep forward slash at the end for relative dirs
 SAMPLE_BASEDIR="/home/amins/pipelines/snakemake/toymake/data/"
 OUTDIR="results/final/"
 
 wildcard_constraints:
-    case_barcode="caseA|caseB",
-    ftype="file1|file2"
+    case_barcode="caseA|caseB"
 
 SAMPLES = ["caseA", "caseB"]
-FTYPE = ["file1", "file2"]
 
 ################################# TARGET RULES #################################
 ## the last rule to be executed
 ## For most parts, prefer running individual modules
 rule all:
     input:
-        lambda wildcards: expand("results/final/{case_barcode}/merged.final.txt", case_barcode = SAMPLES)
+        expand("results/final/{case_barcode}/merged.final.txt", case_barcode = SAMPLES)
 
 rule step1:
     input:
-        casefiles = lambda wildcards: expand("/home/amins/pipelines/snakemake/toymake/data/samples/{case_barcode}/{ftype}.tsv", case_barcode = wildcards.case_barcode, ftype = FTYPE)
+        file1 = "/home/amins/pipelines/snakemake/toymake/data/samples/{case_barcode}/file1.tsv",
+        file2 = "/home/amins/pipelines/snakemake/toymake/data/samples/{case_barcode}/file2.tsv"
     output:
-        merged = protected("results/final/{case_barcode}/merged.tsv"),
-        merged_tarball = protected("results/final/{case_barcode}/merged.step1.tsv.tar.gz")     
+        merged = protected("results/final/{case_barcode}/merged.tsv")
     params:
         mem = PBS_CONF["step1"]["mem"]
     threads:
         PBS_CONF["step1"]["ppn"]
     log:
-        "logs/step1/{case_barcode}.log"
+        "logs/helix/step1/{case_barcode}.log"
     benchmark:
         "benchmarks/step1/{case_barcode}.txt"
     message:
@@ -84,22 +82,21 @@ rule step1:
         echo $PATH
         echo $PS1
 
-        cat {input.casefiles} >> {output.merged}
-        echo "ran step1 for {input.casefiles}" >> {output.merged}
-        tar cvzf {output.merged_tarball} {output.merged} ;
+        cat {input.file1} {input.file2} >> {output.merged}
+        echo "ran step1 for {input.file1} and {input.file2}" >> {output.merged} ;
         """
 
 rule step2:
     input:
-        merged = "results/final/{case_barcode}/merged.tsv"
+        merged=protected("results/final/{case_barcode}/merged.tsv")
     output:
-        merged_tarball = protected("results/final/{case_barcode}/merged.step2.tsv.tar.gz")
+        merged_tarball="results/final/{case_barcode}/merged.step2.tsv.tar.gz"
     params:
         mem = PBS_CONF["step2"]["mem"]
     threads:
         PBS_CONF["step2"]["ppn"]
     log:
-        "logs/step2/{case_barcode}.log"
+        "logs/helix/step2/{case_barcode}.log"
     benchmark:
         "benchmarks/step2/{case_barcode}.txt"
     message:
@@ -112,19 +109,15 @@ rule step2:
         which samtools
         echo $PATH
 
-        cat {input.merged} >> tmp_step2
-        echo "ran step2 for {input.merged}" >> tmp_step2
-        tar cvzf {output.merged_tarball} tmp_step2 ;
+        echo "run step2 for {input.merged}"
+        tar cvzf {output.merged_tarball} {input.merged} ;
         """
 
 rule step3:
-    input:
-        merged1 = lambda wildcards: expand("results/final/{case_barcode}/merged.step1.tsv.tar.gz", case_barcode = SAMPLES),
-        merged2 = lambda wildcards: expand("results/final/{case_barcode}/merged.step2.tsv.tar.gz", case_barcode = SAMPLES)
-    output:
-        final = protected("results/final/{case_barcode}/merged.final.txt")
+    input: "results/final/{case_barcode}/merged.step2.tsv.tar.gz"
+    output: "results/final/{case_barcode}/merged.final.txt"
     log:
-        "logs/step3/{case_barcode}.log"
+        "logs/helix/step3/{case_barcode}.log"
     benchmark:
         "benchmarks/step3/{case_barcode}.txt"
     message:
@@ -135,17 +128,12 @@ rule step3:
         which gatk
         echo $PATH
         echo $LD_LIBRARY_PATH
+        echo 'data dir is $(pwd)'
 
-        mkdir -p step1 && \
-        tar xvzf {input.merged1} -C step1
+        tar xvzf {input}
 
-        mkdir -p step2 && \
-        tar xvzf {input.merged2} -C step2
-
-        echo "ran step3 for {input.merged1} and {input.merged2}" >> tmp_step3
-        ls step*/*
-
-        cat step*/* >> {output.final} ;
+        echo -e "####\nran step3 for {input}\n####\n" >> {output}
+        find results/final/{wildcards.case_barcode} -type f -name "*.tsv" | parallel cat {{}} >> {output} ;
         """
 
 ## END ##
