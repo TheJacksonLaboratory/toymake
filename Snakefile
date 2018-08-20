@@ -17,6 +17,9 @@ from snakemake.utils import validate
 ## always run snakemake from snakemake home dir and not a workdir
 smk_home = os.getcwd()
 
+## set workdir outside of snakemake home
+workdir: config["workdir"]
+
 ##### Load user config #####
 config = yaml.load(open(os.path.join(smk_home, "config.yaml")))
 
@@ -26,23 +29,29 @@ if(smk_home != config['smk_home']):
         "workdir: {}".format(config['smk_home'], smk_home))
 
 ##### HPC scheduler resources #####
-PBS_CONF = json.load(open(config["cluster_specs"]))
-
-## set workdir outside of snakemake home
-workdir: config["workdir"]
+PBS_CONF = json.load(open(os.path.join(smk_home, config["cluster_specs"])))
 
 ##### Parse SysInfo #####
 smk_username = environ['USER']
 smk_workdir = config['workdir']
 
 ## include common rules
-include: "rules/common.smk"
+# include: "rules/common.smk"
 
-#### bash config: enabled in jobscript.sh ####
+#### IMPORTANT: bash config: enabled in jobscript.sh ####
 shell.executable("/bin/bash")
-## enable debugging; read jobscript.sh for additional bash configs
-shell.prefix('set +x ;')
 
+## If running snakemake on a local node, uncomment shell.prefix
+## to source user bashrc and profile.d setup
+## With default snakemake strict mode, it may  still throw 
+## an error with unbound variables while loading bashrc
+# shell.prefix("PS1=\"$-\" ; export PS1")
+
+## If running snakemake on HPC using cluster configs,
+## avoid setting shell.prefix at all.
+## Instead prefer using jobscript.sh 
+
+######################### RULE SPECIFIC CONFIGS #########################
 ## keep forward slash at the end for relative dirs
 SAMPLE_BASEDIR="/home/amins/pipelines/snakemake/toymake/data/"
 OUTDIR="results/final/"
@@ -52,7 +61,7 @@ wildcard_constraints:
 
 SAMPLES = ["caseA", "caseB"]
 
-################################# TARGET RULES #################################
+################################# RULES #################################
 ## the last rule to be executed
 ## For most parts, prefer running individual modules
 rule all:
@@ -80,7 +89,6 @@ rule step1:
         which java
         which gunzip
         echo $PATH
-        echo $PS1
 
         cat {input.file1} {input.file2} >> {output.merged}
         echo "ran step1 for {input.file1} and {input.file2}" >> {output.merged} ;
@@ -124,8 +132,8 @@ rule step3:
         "Run step3\n"
         "Case ID: {wildcards.case_barcode}\n"
     shell:"""
-        module load rvgatk4
-        which gatk
+        module load samtools
+        which samtools
         echo $PATH
         echo $LD_LIBRARY_PATH
         echo 'data dir is $(pwd)'

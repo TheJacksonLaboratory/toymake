@@ -1,44 +1,18 @@
 ## example config file
 
+############### CODEDIR ################
+## snakemake code dir: snakemake must run from this dir
+smk_home: "/home/amins/pipelines/snakemake/toymake"
+
 ############### WORKDIR ################
 ## path to store results
 workdir: "/fastscratch/amins/snakemake/toymake"
-## snakemake dir: snakemake must run from this dir
-smk_home: "/home/amins/pipelines/snakemake/toymake"
-
-############### CLUSTER ################
-cluster_specs: "confs/torque_helix.json"
-
 tempdir: "/fastscratch/amins/tmp"
 
-## parallel runs, typically per chromosome or set of interval files
-scatter_items: 40
-
-## chr list
-chr_autosome_num: 38
-chr_others: ['MT', 'X']
-chr_prefix: ""
-
-## timezone for timestamps
-## avoid stamping filenames
-mytz: "ET"
-
-ref:
-  name: "CanFam3.1"
-  genome: "/projects/verhaak-lab/DogWGSReference/CanFam3_1.fa"
-  # known variants (e.g. DBSNP)
-  dbsnp_path: "/projects/verhaak-lab/DogWGSReference/Canis_familiaris.vcf"
-  known_indels_path: "/projects/verhaak-lab/DogWGSReference/known_indels.vcf"
-
-tools:
-  varscan2: "/projects/verhaak-lab/verhaak_env/verhaak_apps/varscan2/VarScan.v2.4.2.jar"
-  gatk4: "/projects/verhaak-lab/verhaak_env/verhaak_apps/gatk/gatk-4.0.6.0/gatk"
-
-params:
-  gatk:
-    HaplotypeCaller: "-s 20 -b 40"
-    Mutect2: "-q 10 -M"
-  varscan2:
-    somatic: "verbose = true"
+############### CLUSTER ################
+## paths are relative to snakemake code dir
+cluster_specs: "confs/torque_helix.json"
+prerun_script: "scripts/prerun.sh"
+postrun_script: "scripts/postrun.sh"
 
 ## END ##
