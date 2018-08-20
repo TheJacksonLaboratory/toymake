@@ -10,3 +10,8 @@
 !Snakefile
 !.gitignore
 !run_snakemake.sh
+!scripts
+!scripts/*
+!README.md
+!dag.pdf
+!dag_rules.pdf

@@ -17,16 +17,16 @@ from snakemake.utils import validate
 ## always run snakemake from snakemake home dir and not a workdir
 smk_home = os.getcwd()
 
-## set workdir outside of snakemake home
-workdir: config["workdir"]
-
 ##### Load user config #####
 config = yaml.load(open(os.path.join(smk_home, "config.yaml")))
 
 ## quit if snakemake home dir differs between current work dir and config.yaml
 if(smk_home != config['smk_home']):
-    sys.exit("snakemake workdir in config.yaml: {} is different than current "
+    sys.exit("snakemake homedir, smk_home in config.yaml: {} is different than current "
         "workdir: {}".format(config['smk_home'], smk_home))
+
+## set workdir outside of snakemake home
+workdir: config["workdir"]
 
 ##### HPC scheduler resources #####
 PBS_CONF = json.load(open(os.path.join(smk_home, config["cluster_specs"])))

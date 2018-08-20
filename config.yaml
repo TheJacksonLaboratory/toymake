@@ -7,7 +7,6 @@ smk_home: "/home/amins/pipelines/snakemake/toymake"
 ############### WORKDIR ################
 ## path to store results
 workdir: "/fastscratch/amins/snakemake/toymake"
-tempdir: "/fastscratch/amins/tmp"
 
 ############### CLUSTER ################
 ## paths are relative to snakemake code dir
