@@ -89,6 +89,7 @@ rule step1:
         which java
         which gunzip
         echo $PATH
+        echo "RUNNING JOBS CAP: $RUNNING_JOBS"
 
         cat {input.file1} {input.file2} >> {output.merged}
         echo "ran step1 for {input.file1} and {input.file2}" >> {output.merged} ;
