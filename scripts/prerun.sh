@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## execute prior to running each of snakemake job
-echo 'WIP prerun.sh'
+echo 'Running prerun.sh'
 
 ## sleep for n seconds before running any command
 FORCEWAIT=$(shuf -i 5-30 -n 1)

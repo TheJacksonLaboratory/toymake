@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## execute after running each of snakemake job
-echo 'WIP postrun.sh'
+echo 'Running postrun.sh'
 
 # notify slack if error or when env variable PINGENDSLACK is set to YES
 FORCESTOPSLACK=${FORCESTOPSLACK:-"NO"}
