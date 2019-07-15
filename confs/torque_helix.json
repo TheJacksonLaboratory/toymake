@@ -10,15 +10,15 @@
         "m" : "n",
         "M" : "{smk_username}@jax.org",
         "nodes" : 1,
-        "ppn" : 2,
-        "walltime" : "2:00:00",
+        "ppn" : 1,
+        "walltime" : "1:00:00",
         "mem" : 2048,
         "S" : "/bin/bash",
         "r" : "y"
     },
     "step1" :
     {
-        "ppn" : 2,
+        "ppn" : 1,
         "walltime" : "1:10:00",
         "mem" : 2048,
         "stdout": "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out",
@@ -26,7 +26,7 @@
     },
     "step2" :
     {
-        "ppn" : 2,
+        "ppn" : 1,
         "walltime" : "1:10:00",
         "mem" : 2048,
         "stdout": "/fastscratch/amins/snakemake/toymake/logs/helix/{rule}_{wildcards.case_barcode}.out",

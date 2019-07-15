@@ -1,7 +1,7 @@
 ## snakemake toy example
 
 from snakemake.utils import min_version
-min_version("5.2")
+min_version("5.5")
 
 import json
 import yaml
@@ -97,7 +97,7 @@ rule step1:
 
 rule step2:
     input:
-        merged=protected("results/final/{case_barcode}/merged.tsv")
+        merged="results/final/{case_barcode}/merged.tsv"
     output:
         merged_tarball="results/final/{case_barcode}/merged.step2.tsv.tar.gz"
     params:
@@ -112,10 +112,9 @@ rule step2:
         "Run step2\n"
         "Case ID: {wildcards.case_barcode}\n"
     shell:"""
-        module load rvgatk4
-        which gatk
-        module load rvhtsenv/1.8
-        which samtools
+        module load cmake
+        command -v cmake
+        samtools --version
         echo $PATH
 
         echo "run step2 for {input.merged}"
@@ -134,7 +133,7 @@ rule step3:
         "Case ID: {wildcards.case_barcode}\n"
     shell:"""
         module load samtools
-        which samtools
+        command -v samtools
         echo $PATH
         echo $LD_LIBRARY_PATH
         echo 'data dir is $(pwd)'
