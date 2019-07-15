@@ -35,9 +35,6 @@ PBS_CONF = json.load(open(os.path.join(smk_home, config["cluster_specs"])))
 smk_username = environ['USER']
 smk_workdir = config['workdir']
 
-## include common rules
-# include: "rules/common.smk"
-
 #### IMPORTANT: bash config: enabled in jobscript.sh ####
 shell.executable("/bin/bash")
 
