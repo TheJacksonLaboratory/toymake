@@ -18,7 +18,7 @@ from snakemake.utils import validate
 smk_home = os.getcwd()
 
 ##### Load user config #####
-config = yaml.load(open(os.path.join(smk_home, "config.yaml")))
+config = yaml.load(open(os.path.join(smk_home, "config.yaml")), Loader=yaml.FullLoader)
 
 ## quit if snakemake home dir differs between current work dir and config.yaml
 if(smk_home != config['smk_home']):
