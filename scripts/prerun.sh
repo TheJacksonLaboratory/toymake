@@ -21,7 +21,8 @@ STARTMSG="MYJOB ID: $PBS_JOBID starting at $(pwd) on $(hostname) at $(date) for 
 
 if [[ "${PINGSTARTSLACK}" == "YES" && -x "${HOME}"/bin/pingme ]]; then
     # keep ssh into background but allow 5 seconds before exit of parent script so ssh job can ping slack
-    ssh helix "${HOME}/bin/pingme -i white_check_mark -m "\"${STARTMSG}\""" >> /dev/null 2>&1 &
+    #ssh helix "${HOME}/bin/pingme -i white_check_mark -m "\"${STARTMSG}\""" >> /dev/null 2>&1 &
+    "${HOME}"/bin/pingme -i white_check_mark -m "${STARTMSG}" >> /dev/null 2>&1 &
     sleep 5
     echo -e "\n${STARTMSG}\n"
 fi
