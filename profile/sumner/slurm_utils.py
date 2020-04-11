@@ -44,6 +44,10 @@ def convert_job_properties(job_properties, resource_mapping={}):
         options["cpus-per-task"] = job_properties["threads"]
     return options
 
+## replace / and whitespace with _ while making stdout and stderr path
+## From Ben Parks @bnprks, https://github.com/bnprks/snakemake-slurm-profile/blob/c967347bbebe123af1533272ae06fa88ba8ec02e/slurm-submit.py#L38
+def file_escape(string):
+    return string.replace("/", "_").replace(" ", "_")
 
 def ensure_dirs_exist(path):
     """Ensure output folder for Slurm log files exist."""

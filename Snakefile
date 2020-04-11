@@ -1,7 +1,9 @@
 ## snakemake toy example
 
+## @sbamin
+
 from snakemake.utils import min_version
-min_version("5.5")
+min_version("5.14")
 
 import json
 import yaml

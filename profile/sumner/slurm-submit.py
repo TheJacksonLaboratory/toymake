@@ -19,6 +19,8 @@ import os.path
 ## Prefer absolute path as symlinked dirs may return errors
 SMK_WORKFLOW_PATH = os.getenv('SMKDIR')
 
+## Workdir - could be different than workflow dir
+workingdir = os.getenv('WORKDIR')
 ## Do not emit ant stdout in this script except the very last print statement.
 ####### END CUSTOM CONFIG #######
 
@@ -62,6 +64,22 @@ sbatch_options.update(job_properties.get("cluster", {}))
 # 6) Advanced conversion of parameters
 if ADVANCED_ARGUMENT_CONVERSION:
     sbatch_options = slurm_utils.advanced_argument_conversion(sbatch_options)
+
+# create rule-wildcards based stdout and stderr files
+# From Ben Parks @bnprks, https://github.com/bnprks/snakemake-slurm-profile/blob/c967347bbebe123af1533272ae06fa88ba8ec02e/slurm-submit.py#L41-L51
+if job_properties["type"] == "single":
+    sbatch_options["job-name"] = "snake_" + job_properties["rule"]
+    if len(job_properties["wildcards"]) > 0:
+        sbatch_options["job-name"] += "_" + "_".join([key + "=" + slurm_utils.file_escape(value) for key,value in job_properties["wildcards"].items()])
+    sbatch_options["output"] = os.path.join(workingdir, "logs", "slurm", job_properties["rule"], "") + sbatch_options["job-name"] + "_%j.out"
+    sbatch_options["error"] = os.path.join(workingdir, "logs", "slurm", job_properties["rule"], "") + sbatch_options["job-name"] + "_%j.err"
+elif job_properties["type"] == "group":
+    sbatch_options["job-name"] = "snake_" + job_properties["groupid"]
+    sbatch_options["output"] = os.path.join(workingdir, "logs", "slurm", "") + job_properties["groupid"] + "_%j.out"
+    sbatch_options["error"] = os.path.join(workingdir, "logs", "slurm", "") + job_properties["groupid"] + "_%j.err"
+else:
+    print("Error: slurm-submit.py doesn't support job type {} yet!".format(job_properties["type"]))
+    sys.exit(1)
 
 # ensure sbatch output dirs exist
 for o in ("output", "error"):
