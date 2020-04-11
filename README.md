@@ -31,4 +31,9 @@ rsync -avhP ~/pipelines/snakemake/toymake/profile/sumner/ ~/.config/snakemake/su
 ./run_snakemake.sh |& tee -a run.log
 ```
 
+* Expected output
+
+![Expected output](output.png "Expected output")
+
+
 _end_
