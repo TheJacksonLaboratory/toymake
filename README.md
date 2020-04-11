@@ -1,10 +1,10 @@
 ## snakemake toy example
 
-Compliant with [VerhaakEnv](https://github.com/TheJacksonLaboratory/VerhaakEnv)
+Compliant with JAX HPC Sumner (Cent OS7) using slurm v18.08.8
 
 #### To run
 
-*   `ssh helix` and clone this repository 
+*   `ssh sumner` and clone this repository
 
 ```sh
 mkdir -p ~/pipelines/snakemake
@@ -18,38 +18,17 @@ cd toymake
 
 *   Edit `Snakefile` to match your username (replace `amins`).
 
-*   Make log output directory under `workdir` path, e.g.,
+*   Setup slurm profile. [Read details here first](https://github.com/Snakemake-Profiles/slurm)
 
 ```sh
-mkdir -p /fastscratch/"${USER}"/snakemake/toymake/logs/helix
+mkdir -p ~/.config/snakemake/sumner/
+rsync -avhP ~/pipelines/snakemake/toymake/profile/sumner/ ~/.config/snakemake/sumner/
 ```
 
-*   Activate `rvenv2018`
+* Run workflow
 
 ```sh
-source activate rvenv2018
-
-## OR less preferable,
-
-module load rvenv/2.0
-```
-
-*   Plot workflow
-
-```sh
-snakemake --dag | dot -Tpdf >| dag.pdf
-snakemake --rulegraph | dot -Tpdf >| dag_rules.pdf
-```
-
-*   Run dummy workflow (will take ~1 minute to finish)
-
-```sh
-## dry run
-snakemake -nrp
-
-## actual run: submit to HPC Helix
 ./run_snakemake.sh |& tee -a run.log
 ```
 
-end
-
+_end_

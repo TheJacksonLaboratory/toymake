@@ -1,7 +1,9 @@
 ## snakemake toy example
 
+## @sbamin
+
 from snakemake.utils import min_version
-min_version("5.5")
+min_version("5.14")
 
 import json
 import yaml
@@ -15,7 +17,9 @@ from snakemake.utils import validate
 
 #################################### config ####################################
 ## always run snakemake from snakemake home dir and not a workdir
-smk_home = os.getcwd()
+## PS: getcwd will get the actual path and not a symlink, if any.
+## Prefer absolute path as symlinked dirs may return errors
+smk_home = os.getenv('PWD')
 
 ##### Load user config #####
 config = yaml.load(open(os.path.join(smk_home, "config.yaml")), Loader=yaml.FullLoader)
@@ -29,7 +33,8 @@ if(smk_home != config['smk_home']):
 workdir: config["workdir"]
 
 ##### HPC scheduler resources #####
-PBS_CONF = json.load(open(os.path.join(smk_home, config["cluster_specs"])))
+## Override by --profile config
+## HPC_CONF = yaml.load(open(os.path.join(smk_home, config["cluster_specs"])))
 
 ##### Parse SysInfo #####
 smk_username = environ['USER']
@@ -40,13 +45,13 @@ shell.executable("/bin/bash")
 
 ## If running snakemake on a local node, uncomment shell.prefix
 ## to source user bashrc and profile.d setup
-## With default snakemake strict mode, it may  still throw 
+## With default snakemake strict mode, it may  still throw
 ## an error with unbound variables while loading bashrc
 # shell.prefix("PS1=\"$-\" ; export PS1")
 
 ## If running snakemake on HPC using cluster configs,
 ## avoid setting shell.prefix at all.
-## Instead prefer using jobscript.sh 
+## Instead prefer using jobscript.sh
 
 ######################### RULE SPECIFIC CONFIGS #########################
 ## keep forward slash at the end for relative dirs
@@ -71,12 +76,10 @@ rule step1:
         file2 = "/home/amins/pipelines/snakemake/toymake/data/samples/{case_barcode}/file2.tsv"
     output:
         merged = protected("results/final/{case_barcode}/merged.tsv")
-    params:
-        mem = PBS_CONF["step1"]["mem"]
-    threads:
-        PBS_CONF["step1"]["ppn"]
+    resources:
+        mem_mb = 4098
     log:
-        "logs/helix/step1/{case_barcode}.log"
+        "logs/sumner/step1/{case_barcode}.log"
     benchmark:
         "benchmarks/step1/{case_barcode}.txt"
     message:
@@ -86,7 +89,8 @@ rule step1:
         which java
         which gunzip
         echo $PATH
-        echo "RUNNING JOBS CAP: $RUNNING_JOBS"
+        # RUNNING_JOBS comes from prerun.sh via jobscript.sh
+        # echo "RUNNING JOBS CAP: $RUNNING_JOBS"
 
         cat {input.file1} {input.file2} >> {output.merged}
         echo "ran step1 for {input.file1} and {input.file2}" >> {output.merged} ;
@@ -97,20 +101,15 @@ rule step2:
         merged="results/final/{case_barcode}/merged.tsv"
     output:
         merged_tarball="results/final/{case_barcode}/merged.step2.tsv.tar.gz"
-    params:
-        mem = PBS_CONF["step2"]["mem"]
-    threads:
-        PBS_CONF["step2"]["ppn"]
+    threads: 4
     log:
-        "logs/helix/step2/{case_barcode}.log"
+        "logs/sumner/step2/{case_barcode}.log"
     benchmark:
         "benchmarks/step2/{case_barcode}.txt"
     message:
         "Run step2\n"
         "Case ID: {wildcards.case_barcode}\n"
     shell:"""
-        module load cmake
-        command -v cmake
         samtools --version
         echo $PATH
 
@@ -122,15 +121,17 @@ rule step3:
     input: "results/final/{case_barcode}/merged.step2.tsv.tar.gz"
     output: "results/final/{case_barcode}/merged.final.txt"
     log:
-        "logs/helix/step3/{case_barcode}.log"
+        "logs/sumner/step3/{case_barcode}.log"
     benchmark:
         "benchmarks/step3/{case_barcode}.txt"
     message:
         "Run step3\n"
         "Case ID: {wildcards.case_barcode}\n"
     shell:"""
-        module load samtools
-        command -v samtools
+        module load os6gatk4/4.1.3.0
+        command -v gatk
+        gatk --version
+
         echo $PATH
         echo $LD_LIBRARY_PATH
         echo 'data dir is $(pwd)'
