@@ -34,6 +34,7 @@ mkdir -p "${WORKDIR}"/logs/sumner
 
 TSTAMP=$(date +%d%b%y_%H%M%S%Z)
 
+## Plot rulegraph
 snakemake --rulegraph -s Snakefile | dot -Tpng >| "${WORKDIR}"/logs/toymake_flow_"$TSTAMP".png
 
 snakemake --dag -s Snakefile | dot -Tpdf >| "${WORKDIR}"/logs/toymake_flow_"$TSTAMP".pdf
