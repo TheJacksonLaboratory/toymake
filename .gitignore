@@ -1,7 +1,9 @@
 *
 !config.yaml  
-!confs
-!confs/*
+!config
+!config/*
+!profile
+!profile/*
 !data
 !data/**
 !jobscript.sh
@@ -15,3 +17,5 @@
 !README.md
 !dag.pdf
 !dag_rules.pdf
+!output.png
+
