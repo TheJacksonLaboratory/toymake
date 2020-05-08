@@ -128,7 +128,7 @@ rule step3:
         "Run step3\n"
         "Case ID: {wildcards.case_barcode}\n"
     shell:"""
-        module load os6gatk4/4.1.3.0
+        module load  s7gatk/4.1.7.0
         command -v gatk
         gatk --version
 
