@@ -15,11 +15,11 @@ export SMKDIR
 printf "Workflow SMKDIR: %s" "${SMKDIR}"
 
 ## snakemake config dir for jobscript, pre and post-job scripts
+## These are optional config and not being used at present
 SMK_CONF_DIR="${HOME}/.smk_confs"
 
 if [[ ! -d "${SMK_CONF_DIR}" ]]; then
-	echo -e "ERROR: snakemake config directory is missing at ${SMK_CONF_DIR}\n" >&2
-	exit 1
+	echo -e "WARN: snakemake optional config directory is missing at ${SMK_CONF_DIR}\n" >&2
 fi
 
 ## number of hpc jobs to submit at a time
