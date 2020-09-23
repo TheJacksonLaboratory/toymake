@@ -12,8 +12,7 @@ workdir: "/fastscratch/amins/snakemake/toymake"
 ############### CLUSTER ################
 ## paths are relative to snakemake code dir
 ## cluster_specs is now overriden by --profile config
-## cluster_specs: "config/slurm_sumner_defaults.yaml"
-prerun_script: "scripts/prerun.sh"
-postrun_script: "scripts/postrun.sh"
-
+## prerun and postrun scripts are handled via slurm --profile
+## at ~/.config/snakemake/sumner/
+ 
 ## END ##

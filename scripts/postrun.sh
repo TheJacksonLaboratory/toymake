@@ -1,38 +1,55 @@
 #!/bin/bash
 
-## execute after running each of snakemake job
-echo 'Running postrun.sh'
+## @sbamin
+## Sumner HPC at JAX
 
-## pass envrionment variables and bash confligs on-the-fly while job is running
-if [[ -s "${HOME}"/bin/flowrvars_loop.sh ]]; then
-        # source by prefix . else env variable may not get exported to parent script
-    . "${HOME}"/bin/flowrvars_loop.sh
+#### NOTE ####
+## postrun.sh is of a little use with snakemake because snakemake runs in
+## strict mode and hence, will exit the moment there is an error.
+
+## execute after running each of snakemake job using jobscript.sh
+MYJOBEND="$(date +%d%b%y_%H%M%S_%Z)"
+echo 'Running slurm postrun.sh on HPC SUMNER VERSION: ${SUM7VERSION}'
+
+## jobscript.sh must export an env variable "exitstat" immediately after
+## running user commands in the respective snakemake rule else emit warning.
+exitstat="${exitstat:-"WARN"}"
+
+if [[ "$exitstat" == "WARN" ]]; then
+  printf "LOGGER\t%s\tWARN: FAILED TO CAPTURE A VALID EXIT CODE\n" "${MYJOBEND}" >&2
 fi
 
-# notify slack if error or when env variable PINGENDSLACK is set to YES
-FORCESTOPSLACK=${FORCESTOPSLACK:-"NO"}
+ENDMSG="$(printf "LOGGER\t%s\tEND: %s\t%s\t%s\t%s\t%s\t%s\n" "${MYJOBEND}" "${exitstat}" "${SLURM_JOB_ID}" "${SLURM_JOB_NAME}" "$(pwd)" "${SLURMD_NODENAME}" "${USER}")"
 
+## notify slack only on error unless stated otherwise from prerun.sh
+## exported variables
+PINGENDSLACK="${PINGENDSLACK:-"NO"}"
+FORCESTOPSLACK="${FORCESTOPSLACK:-"NO"}"
+
+## notify slack if error
 if [[ "${FORCESTOPSLACK}" == "YES" ]]; then
-	## exitstat variable comes from jobscript.sh
-    WARNMSG="MYJOB ID: $PBS_JOBID exited in $(pwd) on $(hostname) for ${USER} with exit status: ${exitstat}."
-    echo -e "\n${WARNMSG}\n" >&2
-elif [[ ${exitstat} != 0 && -x "${HOME}"/bin/pingme ]] || [[ ${exitstat} != 0 && "${PINGENDSLACK}" == "YES" && -x "${HOME}"/bin/pingme ]]; then
-    ERRMSG="MYJOB ID: $PBS_JOBID: $PBS_JOBNAME failed at $(pwd) on $(hostname) for ${USER} with exit status: ${exitstat}."
-
-    # keep ssh into background but allow 5 seconds before exit of parent script so ssh job can ping slack
-    #ssh helix ""${HOME}"/bin/pingme -i warning -m "\"${ERRMSG}\""" >> /dev/null 2>&1 &
-    "${HOME}"/bin/pingme -i warning -m "${ERRMSG}" >> /dev/null 2>&1 &
+    echo -e "\n${ENDMSG}\n"
+elif [[ "${exitstat}" != "0" && -x "${HOME}"/bin/pingme ]]; then
+    # allow 5 seconds before exit of parent script so job can ping slack
+    "${HOME}"/bin/pingme -u "${USER}" -i warning -m "${ENDMSG}" >> /dev/null 2>&1 &
     sleep 5
-
-    echo -e "\n${ERRMSG}\n" >&2
-elif [[ ${exitstat} == 0 && "${PINGENDSLACK}" == "YES" && -x "${HOME}"/bin/pingme ]]; then
-    PASSMSG="MYJOB ID: $PBS_JOBID: $PBS_JOBNAME completed at $(pwd) on $(hostname) for ${USER} with exit status: ${exitstat}."
-
-    #ssh helix ""${HOME}"/bin/pingme -i white_check_mark -m "\"${PASSMSG}\""" >> /dev/null 2>&1 &
-    "${HOME}"/bin/pingme -i white_check_mark -m "${PASSMSG}" >> /dev/null 2>&1 &
+    echo -e "\n${ENDMSG}\n"
+elif [[ "${exitstat}" == "0" && "${PINGENDSLACK}" == "YES" && -x "${HOME}"/bin/pingme ]]; then
+    # allow 5 seconds before exit of parent script so job can ping slack
+    "${HOME}"/bin/pingme -u "${USER}" -i warning -m "${ENDMSG}" >> /dev/null 2>&1 &
     sleep 5
+    echo -e "\n${ENDMSG}\n"
+fi
 
-    echo -e "\n${PASSMSG}\n" >&2
+echo "exit status was ${exitstat}"
+
+## If postrun.sh fails to capture exitstat from snakemake commands,
+## exit with zero as snakemake runs in strict mode and should capture
+## valid exit status. However, check for WARN message in LOGGER.
+if [[ "${exitstat}" == "0" || "${exitstat}" == "WARN" ]]; then
+  exit 0
+else
+  exit "${exitstat}"
 fi
 
 ## END ##
