@@ -1,6 +1,8 @@
 ## snakemake toy example
 
-Compliant with JAX HPC Sumner (Cent OS7) using slurm v18.08.8
+Compliant with JAX HPC Sumner (Cent OS7) using slurm v18.08.8 and minimum Snakemake version 5.14.
+
+Note: Following workflow may need to be tweaked for the newer versions of Snakemake 7.0 or higher. Alternately, you may like a simpler version of snakemake profile from https://github.com/jdblischak/smk-simple-slurm instead of using one given in the [profile/sumner/config.yaml](profile/sumner/config.yaml) directory.
 
 #### To run
 
