@@ -1,0 +1,18 @@
+## example config file
+
+############### CODEDIR ################
+## snakemake code dir: snakemake must run from this dir
+## Prefer absolute path as symlinked dirs may return errors
+smk_home: "/projects/verhaak-lab/amins/code/pipelines/snakemake/toymake"
+
+############### WORKDIR ################
+## path to store results
+workdir: "/fastscratch/amins/snakemake/toymake"
+
+############### CLUSTER ################
+## paths are relative to snakemake code dir
+## cluster_specs is now overriden by --profile config
+## prerun and postrun scripts are handled via slurm --profile
+## at ~/.config/snakemake/sumner/
+ 
+## END ##
